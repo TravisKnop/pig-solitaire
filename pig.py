@@ -41,10 +41,6 @@ class Game:
         else:
             print("Ooh, tough break. I beat you {} to {}\n".format(self.player_score, self.computer_score))
 
-        self.play_again = input("Want to play again? ")
-            if self.play_again == "y":
-                g.start_up()
-
 
 class Player:
 
@@ -102,3 +98,9 @@ class Computer:
 
     def computer_end_turn(self):
         return self.score_on_turn
+
+c = Computer()
+p = Player()
+g = Game(p, c)
+g.turn = 1
+g.start_up()
