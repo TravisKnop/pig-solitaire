@@ -2,87 +2,103 @@ import random
 
 class Game:
 
-    def __init__(self):
+    def __init__(self, player, computer, turn=0):
+        self.player = player
+        self.computer = computer
         self.turn = 0
-        self.computer_score = computer_score():
-        self.player_score = player_score():
 
+    player_score = 0
+    computer_score = 0
+
+    def start_up(self):
+        print("Here we go!")
+        self.select_player()
 
     def select_player(self):
-        if self.turn % 2 > 0:
-            self.player_input()
-        if self.turn % 2 <= 0:
-            self.get_computer_roll()
-
-    def generate_roll(self):
-        self.dice_roll = random.randint(6)
-        if self.dice_roll == 6:
-            self.points_on_turn = 0
-            self.run_end_turn()
-            return self.points_on_turn
-        else:
-            self.points_on_turn += self.dice_roll
-            return self.points_on_turn
-
-    def run_end_turn(self):
-        self.total_score += self.points_on_turn
-        self.turn += 1
+        while self.turn % 2 > 0:
+            self.player.start_player_turn()
+            self.player_score += self.player.score_on_turn
+            self.turn += 1
+            print("The score is human: {} to computer:{}\n".format(self.player_score, self.computer_score))
+            self.player.score_on_turn = 0
+            return self.select_player()
+        while self.turn % 2 < 1:
+            self.computer.start_computer_turn()
+            self.computer_score += self.computer.score_on_turn
+            self.turn +=1
+            print("After {} rounds, the score is \n human: {} to computer:{}\n".format(int(self.turn/2-0.5), self.player_score, self.computer_score))
+            self.computer.score_on_turn = 0
         if self.turn >= 14:
             self.run_game_over()
         else:
-            print("You scored {} points that turn!".format(player_points))
-            print("Total Score: {}.".format(player_points))
-            return self.points_on_turn
+            return self.select_player()
+
+    def run_game_over(self):
+        if self.player_score > self.computer_score:
+            print("YOU WON!!! \nThe final score was {} to {}".format(self.player_score, self.computer_score))
+        elif self.player_score == self.computer_score:
+            print("WOW!!! A tie! \n\nHow's about a rematch? Loser buys thai.\n")
+        else:
+            print("Ooh, tough break. I beat you {} to {}\n".format(self.player_score, self.computer_score))
+
+        self.play_again = input("Want to play again? ")
+            if self.play_again == "y":
+                g.start_up()
 
 
 class Player:
 
-    def __init__(self, game):
-        self.game = game
+    def __init__(self):
+        self.score_on_turn = 0
+        pass
 
-    def player_input(self):
-        points_on_turn =
-        self.player_input = input("Would you like to bank these points? Or roll again?")
-        if self.player_input == "bank":
-            self.game.run_end_turn()
-        elif self.player_input == "roll":
-            self.game.generate_roll()
+    def start_player_turn(self):
+        player_command = input("It's your turn. Do you want to roll? ")
+        if player_command == "y":
+            self.player_roll()
         else:
-            print("Sorry, please enter 'bank' or 'roll'!")
-            return self.player_input
+            self.player_end_turn()
 
-    def player_score(self):
-        self.player_points += self.points_on_turn
-        return self.player_points
+    def player_roll(self):
+        dice_roll = random.randint(1, 6)
+        if dice_roll == 1:
+            self.score_on_turn = 0
+            print("rolling... {}!".format(dice_roll))
+            print("Oh, too bad! You get no points :-(\n")
+            self.player_end_turn()
+        else:
+            self.score_on_turn += dice_roll
+            print("rolling... {}        {} points on the table...".format(dice_roll, self.score_on_turn))
+            return self.start_player_turn()
 
+    def player_end_turn(self):
+        return self.score_on_turn
 
 
 class Computer:
-    def __init__(self, game):
-        self.game = game
-        pass
+    def __init__(self):
+        self.score_on_turn = 0
 
-    def get_computer_roll(self):
-        points_on_turn = 0
-        self.computer_roll = self.game.generate_roll()
-        print("I rolled a {}".format(self.computer_roll))
-        rn = random.random()
-        if rn <=0.75:
-            print("I think I will roll again.")
-            self.get_computer_roll()
-            return points_on_turn
-        elif rn >0.75:
-            print("I think I will bank these points.")
-            self.game.run_end_turn()
-            return self.computer.points_on_turn
+    def start_computer_turn(self):
+        dice_roll = random.randint(1, 6)
+        if dice_roll == 1:
+            self.score_on_turn = 0
+            print("rolling... {}".format(dice_roll))
+            print("Oh no, I busted :-(")
+            self.computer_end_turn()
+        else:
+            self.score_on_turn += dice_roll
+            print("rolling... {}       I'm looking at {} points this round!".format(dice_roll, self.score_on_turn))
+            self.computer_decide()
+            return self.score_on_turn
 
-    def computer_score(self):
-        self.computer_score = 0 + self.points_on_turn
-        return self.computer_points
+    def computer_decide(self):
+        pos = random.random()
+        if pos > 0.75:
+            print("That's it, I'm done for this turn.\n")
+            self.computer_end_turn()
+        else:
+            self.start_computer_turn()
 
-p = Player()
-c = Computer()
-g = Game()
-
-print("Welcome to pig!")
-p.player_input()
+    def computer_end_turn(self):
+        return self.score_on_turn
